@@ -1,0 +1,122 @@
+<html>
+<head>
+<meta name="viewport" content="width=320" />
+<style>
+  * {
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+ 
+  body {
+    margin:auto;
+    /*width:80%;*/
+    font-family: 'georgia', serif;
+    font-size: 1.0em;
+    background:#333;
+    color:#EEE;
+  }
+
+  small {
+    color:#666;
+  }
+
+  a {
+    color:#FFF;
+  }
+
+  a:hover {
+    color:#FFF;
+  }
+
+  a:visited {
+    color:#FFF;
+  }
+
+  .clear {
+    clear: left;
+  }
+
+  ul.narratives {
+
+  }
+
+  ul.narratives > li.narrative {
+    margin-bottom:1em;
+    clear:left;
+  }
+
+  li.narrative > .summary {
+    margin-top:0.5em;
+    margin-bottom:0.5em;
+  }
+
+  li.narrative > h3 {
+    font-family:'tahoma', sans-serif;
+    background:#666;
+    padding:0.2em;
+  }
+
+  li.narrative > h3 > a {
+    text-decoration:none;
+  }
+  
+  ul.searches {
+    list-style:none;
+  }
+
+  ul.searches > li, li.search {
+    float: left;
+    padding:0.1em;
+    margin-left:0.1em;
+    font-size:0.8em;
+    color:#666;
+  }
+ 
+  ul.articles {
+    margin-top:1em;
+    list-style:none;
+  }
+
+  li.article {
+    padding:0.25em;
+    padding-bottom:0.5em;
+  }
+
+  li.article:hover {
+  }
+
+  li.thisweek {
+    background: #222;
+  }
+
+  li.today {
+    background: #111;
+  }
+
+  li.article .date {
+    display:block;
+    float:left;
+    width:12em;
+    font-size:0.8em;
+    color:#666;
+  }
+
+  .todaytop {
+    display:inline;
+    background:#111;
+    padding:4px;
+    border-top-left-radius:4px;
+    border-top-right-radius:4px;
+  }
+</style>
+</head>
+<body>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script>
+</script>
+<a href='{% url home %}' style='float:right;'>home</a>
+{% block content %}
+{% endblock %}
+</body>
+</html>

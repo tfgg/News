@@ -1,0 +1,206 @@
+# -*- coding: utf-8 -*-
+from datetime import datetime
+import re
+import json
+import os, os.path, sys
+import lxml.html
+import sqlite3
+import xml.utils.iso8601 as iso8601
+import operator
+import gu
+
+remove_chars = [':', '-', ',', '\'', '|', '.', ';', '"', '(', ')', '?', '[', ']', '{', '}']
+
+def strip(s):
+  for c in remove_chars:
+    s = s.replace(c, " ")
+  return s.lower()
+
+def strip_html(s):
+  s = re.sub('<.*?>', ' ', s)
+  return s
+
+def clean(s):
+  s = re.sub('<.*?>', ' ', s)
+  s = re.sub('[0-9]+', ' ', s)
+  for c in remove_chars: 
+    s = s.replace(c, " ")
+  
+  try:
+    t = lxml.html.fromstring(s)
+    return t.text_content()
+  except lxml.etree.ParserError:
+    return s
+
+def split(s):
+  return re.split(r'[\s\':\-]+', s)
+
+def displit(text):
+  words = split(text)
+  diwords = []
+  for i in range(len(words)-1):
+    diwords.append("%s %s" % (words[i], words[i+1]))
+  return diwords
+
+def gen_corpus(word_freq, diword_freq, tag_freq):
+  words = []
+  diwords = []
+  tags = []
+  
+  for page in range(200,500):
+   print "Getting page %d" % page
+   today = []#get_lots(page)
+   for result in today['results']:
+     if 'body' in result['fields']:
+       words += split(clean(result['webTitle']))
+       words += split(clean(result['fields']['body']))
+       diwords += displit(clean(result['fields']['body']))
+       diwords += displit(clean(result['webTitle']))
+     tags += [t['id'] for t in result['tags']]
+
+  for word in words:
+    word = strip(word)
+    if word in word_freq:
+      word_freq[word] += 1
+    else:
+      word_freq[word] = 1
+
+  for diword in diwords:
+    word = strip(diword)
+    if diword in diword_freq:
+      diword_freq[diword] += 1
+    else:
+      diword_freq[diword] = 1
+
+  for tag in tags:
+    if tag in tag_freq:
+      tag_freq[tag] += 1
+    else:
+      tag_freq[tag] = 1
+
+  f = file("corpus.json", "w+")
+  f.write(json.dumps((word_freq, diword_freq, tag_freq)))
+
+  return (word_freq, diword_freq, tag_freq)
+
+def load_word_corpus():
+  print "Loading word corpus"
+
+  if os.path.isfile("corpus.json"):
+   word_freq, diword_freq, tag_freq = json.loads(open("corpus.json").read())
+  #  word_freq, diword_freq, tag_freq = gen_corpus(word_freq, diword_freq, tag_freq)
+  else:
+   word_freq, diword_freq, tag_freq = gen_corpus({},{},{})
+
+  num_words = sum([v for k,v in word_freq.items()])
+  num_diwords = sum([v for k,v in diword_freq.items()])
+  num_tags = sum([v for k,v in tag_freq.items()])
+
+  return (word_freq, diword_freq, tag_freq, num_words, num_diwords, num_tags)
+
+def freq(ls):
+  f = {}
+  for l in ls:
+    if l in f: f[l] += 1
+    else: f[l] = 1
+  
+  n = sum([v for k,v in f.items()])
+  f = dict([(k,float(v)/n) for k,v in f.items()])
+
+  return f
+
+def bayes(ls, pop):
+  def get_or_zero(w,d,n):
+    if w in d: return float(d[w])
+    else: return 1.0/n
+
+  f = freq(ls)
+  b = {}
+
+  n = sum([v for k,v in pop.items()])
+
+  for w,f in f.items():
+    b[w] = f / get_or_zero(w,pop,n)
+
+  return b
+
+def generate_search(story):
+  headline = story['webTitle']
+  tags = [t['id'] for t in story['tags']]
+  body = clean(story['fields']['body'])
+
+  def get_or_zero(w, d):
+    if w in d: return float(d[w])
+    else: return 0.0
+
+  def score_sentence(sentence):
+    return reduce(operator.mul, [get_or_zero(strip(word), word_freq)/num_words for word in sentence.split()], 0.0)
+
+  word_score = []#[(strip(word), get_or_zero(strip(word), word_freq)/num_words) for word in split(headline)]
+  word_score += [(strip(diword), score_sentence(strip(diword))) for diword in displit(headline)]
+  word_score = sorted([(k,v) for k,v in word_score], key=lambda (k,v): v)
+
+  new_words = {}
+  for diword, score in word_score[:3]:
+    words = diword.split()
+    
+    for word in words:
+      new_words[word] = (score, get_or_zero(word, word_freq))
+
+  word_score = new_words.items()
+
+  print word_score
+
+  tag_score = [(tag, tag_freq[tag]) for tag in tags if tag in tag_freq and 'profile/' not in tag]
+  tag_score = sorted([(k,v) for k,v in tag_score], key=lambda (k,v): v)
+
+  body_bayes = bayes([strip(w) for w in split(body)], word_freq)
+  #print sorted(body_bayes.items(), key=lambda (k,v): v, reverse=True)[:10]
+
+  body_bayes_di = bayes([strip(w) for w in displit(body)], diword_freq)
+  #print sorted(body_bayes_di.items(), key=lambda (k,v): v, reverse=True)[:10]
+
+  body_score = [(strip(word), get_or_zero(strip(word), word_freq)/num_words) for word in split(body)]
+  body_score += [(strip(diword), get_or_zero(strip(diword), diword_freq)/num_diwords) for diword in displit(body)]
+  body_score = sorted([(k,v) for k,v in body_score], key=lambda (k,v): v)
+
+  #print ",".join([t for t,v in body_score[:5]])
+  
+  searches = []
+
+  searches.append((' '.join([t for t,(v1,v2) in word_score][:2]), ','.join([t for t, v in tag_score][:1] + ['tone/news'])))
+  
+  return (word_score, tag_score, searches)
+
+if len(sys.argv) < 1:
+  print "Possible actions: add"
+elif sys.argv[1] == 'analyse':
+  (word_freq, diword_freq, tag_freq, num_words, num_diwords, num_tags) = load_word_corpus()
+  story_id = sys.argv[2]
+  story = gu.get_article(story_id)['content']
+  
+  word_score, tag_score, searches = generate_search(story)
+  
+  for tag, score in sorted([(k,v) for k,v in tag_score], key=lambda (k,v): v):
+    print '\t', tag, score
+
+  for word, score in sorted([(k,v) for k,v in word_score], key=lambda (k,v): v):
+    print '\t', word, score
+
+  print searches
+
+  word_count = {} 
+  
+  for search_term, search_tags in searches:
+    print search_term, search_tags
+elif sys.argv[1] == 'today':
+  (word_freq, diword_freq, tag_freq, num_words, num_diwords, num_tags) = load_word_corpus()
+  articles = gu.get_today()
+
+  for article in articles:
+    ws, ts, searches = generate_search(article)
+
+    print article['webTitle']
+    for term, tags in searches:
+      print "  ", term, tags
+  

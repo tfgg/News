@@ -1,0 +1,23 @@
+{% extends "page.html" %}
+
+{% block content %}
+  <h3>{{ narrative.title }}</h3>
+  <ul class='searches'>
+  {% for search in narrative.guardiansearch_set.all %}
+    <li class='search'>{{ search.term }} {{ search.tags }}</li>
+  {% endfor %}
+    <li><a href=''>add search terms</a></li>
+  </ul>
+  <div class="clear"></div>
+  <ul class="articles">
+    {% for result in narrative.results %}
+      {% if forloop.first %}{% if result.istoday %}
+      <li class='todaytop'>today</li>
+      {% endif %}{% endif %}
+      <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}"><div class='date'>{{ result.date }}</div><br/><a href='{{ result.webUrl }}'>{{ result.webTitle }}</a>{% if result.firstpara %}<br/>
+      <a href=''>{{ result.firstpara }}</a>{% endif %}
+      <br/><small>{% for search in result.search %}{{ search.term }} {{ search.tags }} {% endfor %}</small><div class='clear'></div></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+

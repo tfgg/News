@@ -1,0 +1,4 @@
+*.pyc
+news
+ngram/
+*.swp
