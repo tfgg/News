@@ -96,3 +96,10 @@ INSTALLED_APPS = (
     'south',
     'core',
 )
+
+try:
+  from local_settings import *
+except ImportError:
+  pass
+
+

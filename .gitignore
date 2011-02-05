@@ -2,3 +2,5 @@
 news
 ngram/
 *.swp
+local_settings.py
+
