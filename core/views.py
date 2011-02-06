@@ -14,14 +14,6 @@ from models import Narrative, GuardianSearch
 def home(request):
   narratives = Narrative.objects.all()
 
-  for narrative in narratives:
-    if len(narrative.results) != 0:
-      narrative.last_updated = narrative.results[0]['date']
-      narrative.last_article = narrative.results[0]
-    else:
-      narrative.last_updated = None
-      narrative.last_article = None
-
   narratives = sorted(narratives, key=lambda narrative: narrative.last_updated, reverse=True)
 
   return render_to_response('home.html', {'narratives': narratives})
