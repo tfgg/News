@@ -47,13 +47,17 @@
     margin-bottom:0.5em;
   }
 
-  li.narrative > h3 {
+  .summary > a:link {
+    color:#EEE;  
+  }
+
+  li.narrative > h2 {
     font-family:'tahoma', sans-serif;
     background:#666;
     padding:0.2em;
   }
 
-  li.narrative > h3 > a {
+  li.narrative > h2 > a {
     text-decoration:none;
   }
   
