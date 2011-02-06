@@ -40,6 +40,16 @@ num_words = 0
 tags = {}
 num_tags = 0
 
+def load_tag_corpus():
+  print "Loading tag corpus..."
+  if os.path.isfile("tags.json"):
+    print "Found tags file"
+    tags = json.load(open("tags.json"))
+
+  num_tags = sum([v for k,v in tags.items()])
+
+  return tags
+
 def load_word_corpus():
   print "Loading 1-gram corpus..."
   if os.path.isfile("ngram/merged.json"):
@@ -137,3 +147,29 @@ elif sys.argv[1] == 'source':
     for phrase in phrases:
       if phrase in text:
         print phrase
+elif sys.argv[1] == 'common':
+  tags = load_tag_corpus()
+  # Given a set of articles, work out the search terms.
+  article_ids = sys.argv[2:]
+
+  articles = [gu.get_article(id)['content'] for id in article_ids]
+
+  common_tags = None
+  tag_freq = Counter()
+  for article in articles:
+    article_tags = set([tag['id'] for tag in article['tags'] if 'profile/' not in tag['id']])
+    for tag in article_tags:
+      tag_freq[tag] += 1
+    if common_tags is None:
+      common_tags = article_tags
+    common_tags =  article_tags & common_tags
+
+  def default(d,v,df):
+    if v in d: return d[v]
+    else: return df
+
+  print common_tags
+  sorted_tags = sorted([(tag, freq, default(tags, tag, 0), float(freq)/default(tags, tag, 0)) for tag, freq in tag_freq.items()], key=lambda x: x[3])
+  for tag, freq_article, freq_pop, score in sorted_tags:
+    print tag, freq_article, freq_pop, math.log10(score)
+

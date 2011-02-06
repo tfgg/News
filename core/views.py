@@ -7,7 +7,8 @@ import itertools
 from datetime import datetime, date, timedelta
 
 from django.shortcuts import render_to_response
-
+from django.http import HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from models import Narrative, GuardianSearch
 
 def home(request):
@@ -40,3 +41,13 @@ def narrative(request, id=None, slug=None):
     grouped_articles.append((date, list(articles)))
 
   return render_to_response('narrative.html', {'narrative': narrative, 'grouped_articles': grouped_articles})
+
+def create_narrative(request):
+  return render_to_response('narrative_create.html', {})
+
+def flush_narrative(request, slug):
+  narrative = Narrative.objects.get(slug=slug)
+  for search in narrative.guardiansearch_set.all():
+    search.cache = ""
+    search.save()
+  return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': slug}))

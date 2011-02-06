@@ -1,0 +1,24 @@
+{% extends 'page.html' %}
+
+{% block header %}
+  <link rel='stylesheet' href='/static/narrative_create.css' type='text/css'/>
+{% endblock %}
+
+{% block content %}
+<script>
+function add_example_box() {
+  $('#example_articles').append("<label>example article</label> <input type='text'/><br/>");
+}
+</script>
+<h2>Create new narrative</h2>
+<form class='create_narrative'>
+  <div id='example_articles'>
+  <div class='article_url'><label>example article</label> <input type='text'/></div>
+  <div class='article_url'><label>example article</label> <input type='text'/></div>
+  <div class='article_url'><label>example article</label> <input type='text'/></div>
+  </div>
+  <a onclick='javascript:add_example_box()'>add another example</a><br/>
+  <label>give it a name</label> <input type='text' name='title'/><br/>
+  <input type='submit' value='create'/>
+</form>
+{% endblock %}

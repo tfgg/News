@@ -2,11 +2,12 @@
 <head>
 <meta name="viewport" content="width=320" />
 <link rel="stylesheet" href="/static/screen.css" type="text/css"/>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+{% block header %}
+
+{% endblock %}
 </head>
 <body>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
-<script>
-</script>
 <a href='{% url home %}' style='float:right;'>home</a>
 {% block content %}
 {% endblock %}

@@ -4,6 +4,7 @@ import xml.utils.iso8601 as iso8601
 import lxml.html
 import itertools
 
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -52,6 +53,8 @@ def do_search(narrative):
 class Narrative(models.Model):
   title = models.CharField(max_length=200)
   slug = models.SlugField()
+
+  subscriptions = models.ManyToManyField(User)
   
   def searches(self):
     return GuardianSearch.objects.filter(narrative=self)
@@ -90,3 +93,4 @@ class GuardianSearch(models.Model):
       self.cache = json.dumps(self.results)
       self.save()
       return self.results
+

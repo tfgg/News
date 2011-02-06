@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 {% block content %}
+<a href='{% url create_narrative %}'>create new narrative</a>
 <ul class='narratives'>
 {% for narrative in narratives %}
 <li class='narrative'>
