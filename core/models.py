@@ -57,7 +57,7 @@ class Narrative(models.Model):
     return GuardianSearch.objects.filter(narrative=self)
 
   def get_absolute_url(self):
-    return reverse('narrative', kwargs={'id': self.id})
+    return reverse('narrative_slug', kwargs={'slug': self.slug})
 
   @property
   def results(self):
