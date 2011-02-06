@@ -119,7 +119,7 @@
       font-size:1.2em;
     }
 
-    .summary {
+    li.narrative > .summary {
       display:none;
     } 
   }
