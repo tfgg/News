@@ -13,13 +13,6 @@
     color:#EEE;
   }
 
-  @media only screen and (max-device-width: 480px) {
-    body {
-      width:100%;
-      font-size:1.2em;
-    }
-  }
-
   small {
     color:#666;
   }
@@ -41,7 +34,7 @@
   }
 
   ul.narratives {
-
+    list-style:none;
   }
 
   ul.narratives > li.narrative {
@@ -68,6 +61,7 @@
   }
   
   ul.searches {
+    display:none;
     list-style:none;
   }
 
@@ -114,4 +108,15 @@
     padding:4px;
     border-top-left-radius:4px;
     border-top-right-radius:4px;
+  }
+
+  @media only screen and (max-device-width: 480px) {
+    body {
+      width:100%;
+      font-size:1.2em;
+    }
+
+    .summary {
+      display:none;
+    } 
   }
