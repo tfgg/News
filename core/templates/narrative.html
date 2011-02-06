@@ -10,13 +10,13 @@
   </ul>
   <div class="clear"></div>
   <ul class="articles">
-    {% for result in narrative.results %}
-      {% if forloop.first %}{% if result.istoday %}
-      <li class='todaytop'>today</li>
-      {% endif %}{% endif %}
-      <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}"><div class='date'>{{ result.date }}</div><br/><a href='{{ result.webUrl }}'>{{ result.webTitle }}</a>{% if result.firstpara %}<br/>
-      <a href='{{ result.webUrl }}' style='text-decoration:none;'>{{ result.firstpara }}</a>{% endif %}
-      <br/><small style="display:none;">{% for search in result.search %}{{ search.term }} {{ search.tags }} {% endfor %}</small><div class='clear'></div></li>
+    {% for date, results in grouped_articles %}
+      <li class='date_tag'>{{ date }}</li>
+      {% for result in results %}
+        <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}"><a href='{{ result.webUrl }}' class='title'>{{ result.webTitle }}</a>
+        {% if result.firstpara %}<br/><a href='{{ result.webUrl }}' style='text-decoration:none;' class='summary'>{{ result.firstpara }}</a>{% endif %}
+        <br/><small style="display:none;">{% for search in result.search %}{{ search.term }} {{ search.tags }} {% endfor %}</small><div class='clear'></div></li>
+      {% endfor %}
     {% endfor %}
   </ul>
 {% endblock %}

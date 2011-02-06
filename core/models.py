@@ -81,7 +81,7 @@ class GuardianSearch(models.Model):
       print "Cache loaded"
       return self.results
     elif self.cache != "":
-      print "Cached but not loaded"
+      print "Cached but not loaded %s %s" % (self.term, self.tags)
       self.results = json.loads(self.cache)
       return self.results
     else:

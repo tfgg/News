@@ -28,4 +28,11 @@ def narrative(request, id=None, slug=None):
   if slug is not None:
     narrative = Narrative.objects.get(slug=slug)
 
-  return render_to_response('narrative.html', {'narrative': narrative})
+  results = list(narrative.results)
+  day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
+
+  grouped_articles = []
+  for date, articles in day_grouped:
+    grouped_articles.append((date, list(articles)))
+
+  return render_to_response('narrative.html', {'narrative': narrative, 'grouped_articles': grouped_articles})
