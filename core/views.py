@@ -25,14 +25,25 @@ def narrative(request, id=None, slug=None):
   if slug is not None:
     narrative = Narrative.objects.get(slug=slug)
 
+  read_to = datetime.now() - timedelta(3) 
   results = list(narrative.results)
   day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
 
   grouped_articles = []
+  done_read_to = False
   for date, articles in day_grouped:
-    grouped_articles.append((date, list(articles)))
+    articles = list(articles)
+    for article in articles:
+      if not done_read_to and article['date'] < read_to:
+        article['read_to'] = True
+        done_read_to = True
+      else:
+        article['read_to'] = False
+    grouped_articles.append((date, articles))
 
-  return render_to_response('narrative.html', {'narrative': narrative, 'grouped_articles': grouped_articles})
+  return render_to_response('narrative.html', {'narrative': narrative,
+                                               'grouped_articles': grouped_articles,
+                                               'read_to': read_to,})
 
 def create_narrative(request):
   return render_to_response('narrative_create.html', {})

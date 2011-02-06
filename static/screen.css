@@ -113,6 +113,12 @@
     border-top-right-radius:4px;
   }
 
+  .read_to {
+    background:#FC0;
+    padding:0.5em;
+    color:black;
+  }
+
   @media only screen and (max-device-width: 480px) {
     body {
       width:100%;
