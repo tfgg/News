@@ -36,19 +36,24 @@ def narrative(request, id=None, slug=None, show_all=False):
   for i, result in enumerate(results):
     result['int_id'] = i
 
+  unread_i = 0
   if read_to is not None:
     for i in range(len(results)):
-      print results[i]['date'], read_to.date
+      print results[i]['date'], read_to.date, results[i]['date'] < read_to.date, results[i]['webTitle']
       if results[i]['date'] <= read_to.date:
         results[i]['read_to'] = True
 
         if i != 0:
           results[i-1]['last_unread'] = True
 
+        unread_i = i
+
         break
 
     if not show_all:
-      results = results[:i]
+      results = results[:unread_i]
+
+    print len(results)
 
   day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
 
@@ -74,7 +79,7 @@ def flush_narrative(request, slug):
 
 def set_read_to_narrative(request, slug):
   date = request.POST['date']
-  date = datetime.fromtimestamp(iso8601.parse(date))
+  date = datetime.fromtimestamp(iso8601.parse(date)) + timedelta(0,0,0,0,0,6)
 
   narrative = Narrative.objects.get(slug=slug)
   
@@ -90,5 +95,7 @@ def set_read_to_narrative(request, slug):
     read_to = ReadTo.objects.create(user=request.user,
                                     narrative=narrative,
                                     date=date)
+
+  print date
   
   return HttpResponse('')
