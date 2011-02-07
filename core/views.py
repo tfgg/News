@@ -50,6 +50,9 @@ def narrative(request, id=None, slug=None, show_all=False):
 
         break
 
+    if unread_i == 0:
+      show_all = True
+
     if not show_all:
       results = results[:unread_i]
 
