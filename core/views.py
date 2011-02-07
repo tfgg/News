@@ -18,7 +18,7 @@ def home(request):
 
   return render_to_response('home.html', {'narratives': narratives})
 
-def narrative(request, id=None, slug=None):
+def narrative(request, id=None, slug=None, show_all=False):
   narrative = None
   if id is not None:
     narrative = Narrative.objects.get(pk=id)
@@ -28,6 +28,7 @@ def narrative(request, id=None, slug=None):
   read_to = datetime.now() - timedelta(3) 
   results = list(narrative.results)
 
+  unread_i = 0
   for i in range(len(results)):
     if results[i]['date'] < read_to:
       results[i]['read_to'] = True
@@ -35,7 +36,11 @@ def narrative(request, id=None, slug=None):
       if i != 0:
         results[i-1]['last_unread'] = True
 
+      unread_i = i
       break
+
+  if not show_all:
+    results = results[:i]
 
   day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
 
@@ -46,7 +51,8 @@ def narrative(request, id=None, slug=None):
 
   return render_to_response('narrative.html', {'narrative': narrative,
                                                'grouped_articles': grouped_articles,
-                                               'read_to': read_to,})
+                                               'read_to': read_to,
+                                               'show_all': show_all,})
 
 def create_narrative(request):
   return render_to_response('narrative_create.html', {})

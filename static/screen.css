@@ -119,6 +119,11 @@
     color:black;
   }
 
+  .read_to > a:link, .read_to > a:visited {
+    color:black;
+    text-decoration:none;
+  }
+
   @media only screen and (max-device-width: 480px) {
     body {
       width:100%;

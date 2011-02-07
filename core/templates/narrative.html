@@ -15,7 +15,7 @@
       <li class='date_tag'>{{ date }}</li>
       {% for result in results %}
         {% if result.read_to %}
-        <li class='read_to'>you've read to here</li>
+        <li class='read_to'><a href='{% url narrative_slug slug=narrative.slug %}'>you've read to here. click to hide read articles</a></li>
         {% endif %}
         <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}"{% if result.last_unread %} id='last_unread'{% endif %}>
         <a onclick='' style='float:right;'>&lt;</a>
@@ -24,6 +24,9 @@
         <br/><small style="display:none;">{% for search in result.search %}{{ search.term }} {{ search.tags }} {% endfor %}</small><div class='clear'></div></li>
       {% endfor %}
     {% endfor %}
+    {% if not show_all %}
+      <div class='read_to'><a href='{% url narrative_slug_all slug=narrative.slug %}'>you've read to here. click to show all articles</a></div>
+    {% endif %}
   </ul>
 {% endblock %}
 
