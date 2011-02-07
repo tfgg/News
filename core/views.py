@@ -43,7 +43,6 @@ def narrative(request, id=None, slug=None, show_all=False):
   unread_i = 0
   if read_to is not None:
     for i in range(len(results)):
-      print results[i]['date'], read_to.date, results[i]['date'] < read_to.date, results[i]['webTitle']
       if results[i]['date'] <= read_to.date:
         results[i]['read_to'] = True
 
@@ -59,8 +58,6 @@ def narrative(request, id=None, slug=None, show_all=False):
 
     if not show_all:
       results = results[:unread_i]
-
-    print len(results)
 
   day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
 
@@ -103,6 +100,5 @@ def set_read_to_narrative(request, slug):
                                     narrative=narrative,
                                     date=date)
 
-  print date
   
   return HttpResponse('')

@@ -89,14 +89,11 @@ class GuardianSearch(models.Model):
 
   def do(self):
     if hasattr(self, 'results'):
-      print "Cache loaded"
       return self.results
     elif self.cache != "":
-      print "Cached but not loaded %s %s" % (self.term, self.tags)
       self.results = json.loads(self.cache)
       return self.results
     else:
-      print "Not cached, not loaded"
       self.results = gu.search(self.term, self.tags)
       self.cache = json.dumps(self.results)
       self.save()
