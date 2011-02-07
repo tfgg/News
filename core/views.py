@@ -15,7 +15,8 @@ def home(request):
   narratives = Narrative.objects.all()
 
   for narrative in narratives:
-    print narrative.title, type(narrative.last_updated)
+    if not request.user.is_anonymous():
+      narrative.user_new = 2
 
   narratives = sorted(narratives, key=lambda narrative: narrative.last_updated, reverse=True)
 
