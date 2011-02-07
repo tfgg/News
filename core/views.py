@@ -7,9 +7,9 @@ import itertools
 from datetime import datetime, date, timedelta
 
 from django.shortcuts import render_to_response
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse,HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from models import Narrative, GuardianSearch
+from models import Narrative, GuardianSearch, ReadTo
 
 def home(request):
   narratives = Narrative.objects.all()
@@ -25,22 +25,30 @@ def narrative(request, id=None, slug=None, show_all=False):
   if slug is not None:
     narrative = Narrative.objects.get(slug=slug)
 
-  read_to = datetime.now() - timedelta(3) 
+  try:
+    read_to = ReadTo.objects.get(user=request.user,
+                                 narrative=narrative)
+  except ReadTo.DoesNotExist:
+    read_to = None
+  
   results = list(narrative.results)
 
-  unread_i = 0
-  for i in range(len(results)):
-    if results[i]['date'] < read_to:
-      results[i]['read_to'] = True
+  for i, result in enumerate(results):
+    result['int_id'] = i
 
-      if i != 0:
-        results[i-1]['last_unread'] = True
+  if read_to is not None:
+    for i in range(len(results)):
+      print results[i]['date'], read_to.date
+      if results[i]['date'] <= read_to.date:
+        results[i]['read_to'] = True
 
-      unread_i = i
-      break
+        if i != 0:
+          results[i-1]['last_unread'] = True
 
-  if not show_all:
-    results = results[:i]
+        break
+
+    if not show_all:
+      results = results[:i]
 
   day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
 
@@ -63,3 +71,24 @@ def flush_narrative(request, slug):
     search.cache = ""
     search.save()
   return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': slug}))
+
+def set_read_to_narrative(request, slug):
+  date = request.POST['date']
+  date = datetime.fromtimestamp(iso8601.parse(date))
+
+  narrative = Narrative.objects.get(slug=slug)
+  
+  try:
+    read_to = ReadTo.objects.get(user=request.user, narrative=narrative)
+  except ReadTo.DoesNotExist:
+    read_to = None
+
+  if read_to is not None:
+    read_to.date = date
+    read_to.save()
+  else:
+    read_to = ReadTo.objects.create(user=request.user,
+                                    narrative=narrative,
+                                    date=date)
+  
+  return HttpResponse('')

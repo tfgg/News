@@ -70,6 +70,11 @@ class Narrative(models.Model):
   def __unicode__(self):
     return self.title
 
+class ReadTo(models.Model):
+  user = models.ForeignKey(User)
+  narrative = models.ForeignKey(Narrative)
+  date = models.DateTimeField()
+
 class GuardianSearch(models.Model):
   narrative = models.ForeignKey(Narrative)
   term = models.TextField()

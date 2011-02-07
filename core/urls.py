@@ -9,5 +9,6 @@ urlpatterns = patterns('',
     url(r'^narratives/flush/(?P<slug>[\w-]+)$', views.flush_narrative, name="flush_narrative"),
     url(r'^narratives/(?P<slug>[\w-]+)$', views.narrative, name="narrative_slug"),
     url(r'^narratives/(?P<slug>[\w-]+)/all$', views.narrative, name="narrative_slug_all", kwargs={'show_all': True}),
+    url(r'^narratives/(?P<slug>[\w-]+)/read_to$', views.set_read_to_narrative, name="narrative_read_to"),
 )
 
