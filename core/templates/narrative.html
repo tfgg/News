@@ -17,7 +17,9 @@
         {% if result.read_to %}
         <li class='read_to'>you've read to here</li>
         {% endif %}
-        <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}"><a href='{{ result.webUrl }}' class='title'>{{ result.webTitle }}</a>
+        <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}"{% if result.last_unread %} id='last_unread'{% endif %}>
+        <a onclick='' style='float:right;'>&lt;</a>
+        <a href='{{ result.webUrl }}' class='title'>{{ result.webTitle }}</a>
         {% if result.firstpara %}<br/><a href='{{ result.webUrl }}' style='text-decoration:none;' class='summary'>{{ result.firstpara }}</a>{% endif %}
         <br/><small style="display:none;">{% for search in result.search %}{{ search.term }} {{ search.tags }} {% endfor %}</small><div class='clear'></div></li>
       {% endfor %}

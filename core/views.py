@@ -27,18 +27,21 @@ def narrative(request, id=None, slug=None):
 
   read_to = datetime.now() - timedelta(3) 
   results = list(narrative.results)
+
+  for i in range(len(results)):
+    if results[i]['date'] < read_to:
+      results[i]['read_to'] = True
+
+      if i != 0:
+        results[i-1]['last_unread'] = True
+
+      break
+
   day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
 
   grouped_articles = []
-  done_read_to = False
   for date, articles in day_grouped:
     articles = list(articles)
-    for article in articles:
-      if not done_read_to and article['date'] < read_to:
-        article['read_to'] = True
-        done_read_to = True
-      else:
-        article['read_to'] = False
     grouped_articles.append((date, articles))
 
   return render_to_response('narrative.html', {'narrative': narrative,
