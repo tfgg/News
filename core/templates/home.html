@@ -1,11 +1,9 @@
 {% extends "page.html" %}
 {% block content %}
-<a href='{% url create_narrative %}'>create new narrative</a>
 <ul class='narratives'>
 {% for narrative in narratives %}
 <li class='narrative'>
   <h2><a href='{{ narrative.get_absolute_url }}'>{{ narrative.title }}</a>{% if narrative.user_new %} <small style='font-size:small;font-weight:normal;'>{{ narrative.user_new }} new articles</small>{% endif %}<br/>
-  <small style='font-weight:normal;font-size:x-small;'>updated {{ narrative.last_updated }}</small></h2>
   <ul class='searches'>
   {% for search in narrative.guardiansearch_set.all %}
     <li class='search'>{{ search.term }} {{ search.tags }}</li>
@@ -15,4 +13,5 @@
 </li>
 {% endfor %}
 </ul>
+<a href='{% url create_narrative %}'>create new narrative</a>
 {% endblock %}
