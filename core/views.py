@@ -14,6 +14,9 @@ from models import Narrative, GuardianSearch, ReadTo
 def home(request):
   narratives = Narrative.objects.all()
 
+  for narrative in narratives:
+    print narrative.title, type(narrative.last_updated)
+
   narratives = sorted(narratives, key=lambda narrative: narrative.last_updated, reverse=True)
 
   return render_to_response('home.html', {'narratives': narratives})

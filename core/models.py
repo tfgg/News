@@ -65,6 +65,9 @@ class Narrative(models.Model):
   @property
   def results(self):
     rs = do_search(self)
+    if len(rs) != 0:
+      self.last_updated = rs[0]['date']
+      self.save()
     return rs
 
   def __unicode__(self):
