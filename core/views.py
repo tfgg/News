@@ -16,7 +16,20 @@ def home(request):
 
   for narrative in narratives:
     if not request.user.is_anonymous():
-      narrative.user_new = 2
+      try:
+        read_to = ReadTo.objects.get(user=request.user,
+                                     narrative=narrative)
+      except ReadTo.DoesNotExist:
+        read_to = None
+
+      if read_to is not None:
+        count = 0
+        for article in narrative.results:
+          if article['date'] > read_to.date:
+            count += 1
+          else:
+            break
+        narrative.new_count = count
 
   narratives = sorted(narratives, key=lambda narrative: narrative.last_updated, reverse=True)
 
@@ -29,11 +42,14 @@ def narrative(request, id=None, slug=None, show_all=False):
   if slug is not None:
     narrative = Narrative.objects.get(slug=slug)
 
-  try:
-    read_to = ReadTo.objects.get(user=request.user,
-                                 narrative=narrative)
-  except ReadTo.DoesNotExist:
+  if request.user.is_anonymous():
     read_to = None
+  else:
+    try:
+      read_to = ReadTo.objects.get(user=request.user,
+                                   narrative=narrative)
+    except ReadTo.DoesNotExist:
+      read_to = None
   
   results = list(narrative.results)
 
@@ -94,6 +110,9 @@ def flush_narrative(request, slug=None):
 def set_read_to_narrative(request, slug):
   date = request.POST['date']
   date = datetime.fromtimestamp(iso8601.parse(date)) + timedelta(0,0,0,0,0,6)
+
+  if request.user.is_anonymous():
+    return HttpResponse('')
 
   narrative = Narrative.objects.get(slug=slug)
   
