@@ -47,6 +47,21 @@
     margin-bottom:0.5em;
   }
 
+  .new_count {
+    font-size:small;
+    font-weight:normal;
+    margin-left:0.2em;
+    display:inline;
+  }
+
+  .new_articles {
+    color:#EECC00;
+  }
+
+  .nonew_articles {
+    color:#666;
+  }
+
   a.summary {
     color:#ccc;  
   }
@@ -58,6 +73,10 @@
   li.narrative > h2 {
     background:#222;
     padding:0.2em;
+  }
+
+  li.narrative_new > h2 {
+    background:#111;
   }
 
   li.narrative > h2 > a {
