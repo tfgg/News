@@ -108,9 +108,44 @@ def flush_narrative(request, slug=None):
   else:
     return HttpResponseRedirect(reverse('home'))
 
+def check_narratives(request):
+  """
+    Find all narratives which are due to be checked, then set their next check time:
+
+    - If there's a new article, check again in 1 hour
+    - If there's no new article, double the gap up to a max of 24 hours  
+  """
+
+  now = datetime.now()
+  narratives = Narrative.objects.all()
+  for narrative in narratives:
+    print narrative.title, narrative.next_check
+    if narrative.next_check <= now:
+      article_count = len(narrative.results)
+      narrative.results
+      for search in narrative.guardiansearch_set.all():
+        search.cache = ""
+        search.save()
+      narrative.results
+      new_article_count = len(narrative.results) - article_count
+
+      print narrative.title, new_article_count
+      
+      new_gap = timedelta(0,0,0,0,0,1)
+      if new_article_count == 0:
+        new_gap = (narrative.next_check - narrative.last_check)*2
+        if new_gap > timedelta(1):
+          new_gap = timedelta(1)
+      narrative.last_check = now
+      narrative.next_check = narrative.last_check + new_gap
+      narrative.save()
+
+      print narrative.last_check, narrative.next_check
+  return HttpResponseRedirect('/')
+
 def set_read_to_narrative(request, slug):
   date = request.POST['date']
-  date = datetime.fromtimestamp(iso8601.parse(date)) + timedelta(0,0,0,0,0,6)
+  date = datetime.fromtimestamp(iso8601.parse(date))
 
   if request.user.is_anonymous():
     return HttpResponse('')

@@ -54,6 +54,8 @@ class Narrative(models.Model):
   title = models.CharField(max_length=200)
   slug = models.SlugField()
   last_updated = models.DateTimeField()
+  last_check = models.DateTimeField()
+  next_check = models.DateTimeField()
   subscriptions = models.ManyToManyField(User)
   
   def searches(self):
