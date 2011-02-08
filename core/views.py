@@ -74,12 +74,22 @@ def narrative(request, id=None, slug=None, show_all=False):
 def create_narrative(request):
   return render_to_response('narrative_create.html', {})
 
-def flush_narrative(request, slug):
-  narrative = Narrative.objects.get(slug=slug)
-  for search in narrative.guardiansearch_set.all():
-    search.cache = ""
-    search.save()
-  return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': slug}))
+def flush_narrative(request, slug=None):
+  if slug is None:
+    narratives = Narrative.objects.all()
+  else:
+    narratives = [Narrative.objects.get(slug=slug)]
+
+  for narrative in narratives:
+    for search in narrative.guardiansearch_set.all():
+      search.cache = ""
+      search.save()
+    narrative.results
+
+  if slug is not None:
+    return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': slug}))
+  else:
+    return HttpResponseRedirect(reverse('home'))
 
 def set_read_to_narrative(request, slug):
   date = request.POST['date']
