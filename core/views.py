@@ -24,11 +24,12 @@ def home(request):
 
       if read_to is not None:
         count = 0
-        for article in narrative.results:
-          if article['date'] > read_to.date:
-            count += 1
-          else:
-            break
+        if narrative.last_updated > read_to.date: # Short circuit counting if the narrative hasn't any new stories since
+          for article in narrative.results:
+            if article['date'] > read_to.date:
+              count += 1
+            else:
+              break
         narrative.new_count = count
 
   narratives = sorted(narratives, key=lambda narrative: narrative.last_updated, reverse=True)
