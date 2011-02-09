@@ -120,11 +120,10 @@ def check_narratives(request):
       narrative.populate_articles()
       new_article_count = Article.objects.filter(narrative=narrative).count() - num_articles1
       
-      new_gap = timedelta(0,0,0,0,0,1)
       if new_article_count == 0:
-        new_gap = (narrative.next_check - narrative.last_check)*2
-        if new_gap > timedelta(1):
-          new_gap = timedelta(1)
+        new_gap = timedelta(0,0,0,0,0,6)
+      else:
+        new_gap = timedelta(0,0,0,0,0,1)
       narrative.last_check = now
       narrative.next_check = narrative.last_check + new_gap
       narrative.save()
