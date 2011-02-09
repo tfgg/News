@@ -22,7 +22,6 @@
     <li><a href=''>add search terms</a></li>
   </ul>
   <div class="clear"></div>
-  <a href='{% url flush_narrative slug=narrative.slug %}'>flush cache</a>
   <ul class="articles">
     {% for date, articles in grouped_articles %}
       <li class='date_tag'>{{ date }}</li>
