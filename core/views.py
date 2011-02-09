@@ -50,7 +50,7 @@ def narrative(request, id=None, slug=None, show_all=False):
     except ReadTo.DoesNotExist:
       read_to = None
   
-  articles = list(narrative.article_set.all())
+  articles = list(narrative.article_set.order_by('-date'))
 
   for i, result in enumerate(articles):
     result.ordinal = i
