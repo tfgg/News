@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block content %}
+<a href='{% url home %}' style='float:right;'>home</a>
   <h3>{{ narrative.title }}</h3>
   <ul class='searches'>
   {% for search in narrative.guardiansearch_set.all %}
@@ -22,16 +23,16 @@
   <div class="clear"></div>
   <a href='{% url flush_narrative slug=narrative.slug %}'>flush cache</a>
   <ul class="articles">
-    {% for date, results in grouped_articles %}
+    {% for date, articles in grouped_articles %}
       <li class='date_tag'>{{ date }}</li>
-      {% for result in results %}
+      {% for result in articles %}
         {% if result.read_to %}
         <li class='read_to'><a href='{% url narrative_slug slug=narrative.slug %}'>you've read to here. click to hide read articles</a></li>
         {% endif %}
-        <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}" id='{{ result.int_id }}'>
-        <a onclick='javascript:set_read_to("{{ result.date.isoformat }}Z","{{ result.int_id }}");' style='float:right;'>&lt;</a>
-        <a href='{{ result.webUrl }}' class='title'>{{ result.webTitle }}</a>
-        {% if result.firstpara %}<br/><a href='{{ result.webUrl }}' style='text-decoration:none;' class='summary'>{{ result.firstpara }}</a>{% endif %}
+        <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}" id='{{ result.ordinal }}'>
+        <a onclick='javascript:set_read_to("{{ result.date.isoformat }}Z","{{ result.ordinal }}");' style='float:right;'>&lt;</a>
+        <a href='{{ result.url }}' class='title'>{{ result.headline }}</a>
+        {% if result.quote %}<br/><a href='{{ result.url }}' style='text-decoration:none;' class='summary'>{{ result.quote }}</a>{% endif %}
         <br/><small style="display:none;">{% for search in result.search %}{{ search.term }} {{ search.tags }} {% endfor %}</small><div class='clear'></div></li>
       {% endfor %}
     {% endfor %}

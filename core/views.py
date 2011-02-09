@@ -9,7 +9,7 @@ from datetime import datetime, date, timedelta
 from django.shortcuts import render_to_response
 from django.http import HttpResponse,HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from models import Narrative, GuardianSearch, ReadTo
+from models import Narrative, GuardianSearch, ReadTo, Article
 
 def home(request):
   narratives = Narrative.objects.all()
@@ -19,18 +19,11 @@ def home(request):
       try:
         read_to = ReadTo.objects.get(user=request.user,
                                      narrative=narrative)
-      except ReadTo.DoesNotExist:
-        read_to = None
-
-      if read_to is not None:
-        count = 0
-        if narrative.last_updated > read_to.date: # Short circuit counting if the narrative hasn't any new stories since
-          for article in narrative.results:
-            if article['date'] > read_to.date:
-              count += 1
-            else:
-              break
+        count = Article.objects.filter(narrative=narrative,
+                                       date__gt=read_to.date).count()
         narrative.new_count = count
+      except ReadTo.DoesNotExist:
+        pass
 
     if narrative.last_updated < datetime.now() - timedelta(7):
       narrative.dormant = True
@@ -57,31 +50,28 @@ def narrative(request, id=None, slug=None, show_all=False):
     except ReadTo.DoesNotExist:
       read_to = None
   
-  results = list(narrative.results)
+  articles = list(narrative.article_set.all())
 
-  for i, result in enumerate(results):
-    result['int_id'] = i
+  for i, result in enumerate(articles):
+    result.ordinal = i
 
   unread_i = 0
   if read_to is not None:
-    for i in range(len(results)):
-      if results[i]['date'] <= read_to.date:
-        results[i]['read_to'] = True
-
+    for i in range(len(articles)):
+      if articles[i].date <= read_to.date:
+        articles[i].read_to = True
         if i != 0:
-          results[i-1]['last_unread'] = True
-
+          articles[i-1].last_unread = True
         unread_i = i
-
         break
 
     if unread_i == 0:
       show_all = True
 
     if not show_all:
-      results = results[:unread_i]
+      articles = articles[:unread_i]
 
-  day_grouped = itertools.groupby(results, lambda article: article['date'].date()) 
+  day_grouped = itertools.groupby(articles, lambda article: article.date.date()) 
 
   grouped_articles = []
   for date, articles in day_grouped:
@@ -106,7 +96,8 @@ def flush_narrative(request, slug=None):
     for search in narrative.guardiansearch_set.all():
       search.cache = ""
       search.save()
-    narrative.results
+
+    narrative.populate_articles()
 
   if slug is not None:
     return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': slug}))

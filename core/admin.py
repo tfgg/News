@@ -9,3 +9,4 @@ class NarrativeAdmin(admin.ModelAdmin):
 admin.site.register(models.Narrative, NarrativeAdmin)
 admin.site.register(models.GuardianSearch)
 admin.site.register(models.ReadTo)
+admin.site.register(models.Article)

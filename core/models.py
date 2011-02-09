@@ -25,26 +25,30 @@ def do_search(narrative):
   for search in narrative.guardiansearch_set.all():
     results = search.do()
     for article in results:
-      article['date'] = datetime.fromtimestamp(iso8601.parse(article['webPublicationDate']))
-      article['istoday'] = (date.today() == article['date'].date())
-      article['thisweek'] = (article['date'].date() > date.today() - timedelta(7))
-      article['search'] = [search]
+      a = {}
+      a['date'] = datetime.fromtimestamp(iso8601.parse(article['webPublicationDate']))
+      a['istoday'] = (date.today() == a['date'].date())
+      a['thisweek'] = (a['date'].date() > date.today() - timedelta(7))
+      a['search'] = [search]
       
       if 'fields' in article and 'body' in article['fields']:
         if article['fields']['body'] == '<!-- Redistribution rights for this field are unavailable -->' or len(article['fields']['body']) == 0:
-          article['firstpara'] = ""
+          a['firstpara'] = ""
         else:
-          article['firstpara'] = strip_html(article['fields']['body']).split('\n')[0]
-    all_results += results
+          a['firstpara'] = strip_html(article['fields']['body']).split('\n')[0]
+      else:
+          a['firstpara'] = ""
+      a['data'] = article
+      all_results.append(a)
   all_results = sorted(all_results, key=lambda article: article['date'], reverse=True)
 
   # Remove duplicates
   results = []
-  grouped = itertools.groupby(all_results, lambda article: article['id'])
+  grouped = itertools.groupby(all_results, lambda article: article['data']['id'])
   for group, articles in grouped:
     articles = list(articles)
-    for article in articles[1:]:
-      articles[0]['search'] += article['search']
+    for a in articles[1:]:
+      articles[0]['search'] += a['search']
     results.append(articles[0])
 
   return results
@@ -72,6 +76,17 @@ class Narrative(models.Model):
       self.save()
     return rs
 
+  def populate_articles(self):
+    Article.objects.filter(narrative=self).delete() # Trash existing articles in the db for this narrative
+    for a in self.results:
+      print a['data']['webTitle']
+      Article.objects.create(narrative=self,
+                             headline=a['data']['webTitle'],
+                             quote=a['firstpara'],
+                             date=a['date'],
+                             url=a['data']['webUrl'],
+                             data=json.dumps(a['data']))
+
   def __unicode__(self):
     return self.title
 
@@ -79,6 +94,18 @@ class ReadTo(models.Model):
   user = models.ForeignKey(User)
   narrative = models.ForeignKey(Narrative)
   date = models.DateTimeField()
+
+class Article(models.Model):
+  headline = models.CharField(max_length=256)
+  quote = models.TextField()
+  date = models.DateTimeField()
+  url = models.CharField(max_length=2048)
+  data = models.TextField()
+
+  narrative = models.ForeignKey(Narrative)
+
+  def __unicode__(self):
+    return self.headline 
 
 class GuardianSearch(models.Model):
   narrative = models.ForeignKey(Narrative)
