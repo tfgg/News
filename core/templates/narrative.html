@@ -14,6 +14,7 @@
 {% block content %}
 <a href='{% url home %}' style='float:right;'>home</a>
   <h3>{{ narrative.title }}</h3>
+  <small>content from <a href='http://www.guardian.co.uk'>the Guardian</a></small>
   <ul class='searches'>
   {% for search in narrative.guardiansearch_set.all %}
     <li class='search'>{{ search.term }} {{ search.tags }}</li>
