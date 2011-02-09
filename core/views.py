@@ -111,17 +111,14 @@ def check_narratives(request):
   now = datetime.now()
   narratives = Narrative.objects.all()
   for narrative in narratives:
-    print narrative.title, narrative.next_check
     if narrative.next_check <= now:
-      article_count = len(narrative.results)
-      narrative.results
+      num_articles1 = Article.objects.filter(narrative=narrative).count()
       for search in narrative.guardiansearch_set.all():
         search.cache = ""
         search.save()
-      narrative.results
-      new_article_count = len(narrative.results) - article_count
 
-      print narrative.title, new_article_count
+      narrative.populate_articles()
+      new_article_count = Article.objects.filter(narrative=narrative).count() - num_articles1
       
       new_gap = timedelta(0,0,0,0,0,1)
       if new_article_count == 0:
@@ -132,7 +129,6 @@ def check_narratives(request):
       narrative.next_check = narrative.last_check + new_gap
       narrative.save()
 
-      print narrative.last_check, narrative.next_check
   return HttpResponseRedirect('/')
 
 def set_read_to_narrative(request, slug):
