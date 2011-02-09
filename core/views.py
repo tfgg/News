@@ -72,11 +72,7 @@ def narrative(request, id=None, slug=None, show_all=False):
       articles = articles[:unread_i]
 
   day_grouped = itertools.groupby(articles, lambda article: article.date.date()) 
-
-  grouped_articles = []
-  for date, articles in day_grouped:
-    articles = list(articles)
-    grouped_articles.append((date, articles))
+  grouped_articles = [(date, list(articles)) for date, articles in day_grouped]
 
   return render_to_response('narrative.html', {'narrative': narrative,
                                                'grouped_articles': grouped_articles,

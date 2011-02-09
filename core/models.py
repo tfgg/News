@@ -103,6 +103,20 @@ class Article(models.Model):
 
   narrative = models.ForeignKey(Narrative)
 
+  @property
+  def istoday(self):
+    if self.date.date() == date.today():
+      return True
+    else:
+      return False
+
+  @property
+  def isthisweek(self):
+    if self.date.date() > date.today() - timedelta(7):
+      return True
+    else:
+      return False
+
   def __unicode__(self):
     return self.headline 
 

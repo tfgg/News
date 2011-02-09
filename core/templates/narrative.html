@@ -29,7 +29,7 @@
         {% if result.read_to %}
         <li class='read_to'><a href='{% url narrative_slug slug=narrative.slug %}'>you've read to here. click to hide read articles</a></li>
         {% endif %}
-        <li class="article{% if result.istoday %} today{% endif %}{% if result.thisweek %} thisweek{% endif %}" id='{{ result.ordinal }}'>
+        <li class="article{% if result.istoday %} today{% endif %}{% if result.isthisweek %} thisweek{% endif %}" id='{{ result.ordinal }}'>
         <a onclick='javascript:set_read_to("{{ result.date.isoformat }}Z","{{ result.ordinal }}");' style='float:right;'>&lt;</a>
         <a href='{{ result.url }}' class='title'>{{ result.headline }}</a>
         {% if result.quote %}<br/><a href='{{ result.url }}' style='text-decoration:none;' class='summary'>{{ result.quote }}</a>{% endif %}
