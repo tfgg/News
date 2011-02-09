@@ -79,7 +79,6 @@ class Narrative(models.Model):
   def populate_articles(self):
     Article.objects.filter(narrative=self).delete() # Trash existing articles in the db for this narrative
     for a in self.results:
-      print a['data']['webTitle']
       Article.objects.create(narrative=self,
                              headline=a['data']['webTitle'],
                              quote=a['firstpara'],
