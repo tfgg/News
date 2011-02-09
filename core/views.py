@@ -32,6 +32,11 @@ def home(request):
               break
         narrative.new_count = count
 
+    if narrative.last_updated < datetime.now() - timedelta(7):
+      narrative.dormant = True
+    else:
+      narrative.dormant = False
+
   narratives = sorted(narratives, key=lambda narrative: narrative.last_updated, reverse=True)
 
   return render_to_response('home.html', {'narratives': narratives})

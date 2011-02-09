@@ -37,9 +37,27 @@
     list-style:none;
   }
 
+  ul.narratives > li.button {
+    background:#EEE;
+    color:black;
+  }
+
   ul.narratives > li.narrative {
     margin-bottom:1em;
     clear:left;
+  }
+
+  ul.narratives > li.narrative_dormant {
+    display:none;
+  }
+
+  ul.narratives > li.button > a {
+    display:block;
+    padding:0.2em;
+    font-size:1.2em;
+    margin-top:0.5em;
+    color:black;
+    cursor:hand;
   }
 
   li.narrative > .summary {
