@@ -15,15 +15,19 @@ def home(request):
   narratives = Narrative.objects.all()
 
   for narrative in narratives:
+    last_viewed_date = date.today()
     if not request.user.is_anonymous():
       try:
         read_to = ReadTo.objects.get(user=request.user,
                                      narrative=narrative)
-        count = Article.objects.filter(narrative=narrative,
-                                       date__gt=read_to.date).count()
-        narrative.new_count = count
+        last_viewed_date = read_to.date
       except ReadTo.DoesNotExist:
         pass
+
+    count = Article.objects.filter(narrative=narrative,
+                                   date__gt=last_viewed_date).count()
+
+    narrative.new_count = count
 
     if narrative.last_updated < datetime.now() - timedelta(7):
       narrative.dormant = True
