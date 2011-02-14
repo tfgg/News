@@ -81,8 +81,8 @@ def narrative(request, id=None, slug=None, show_all=False):
   if read_to is not None:
     read_to.date = datetime.now()
     read_to.save()
-  elif not request.is_anonymous():
-    read_to = ReadTo.create(narrative=narrative,
+  elif not request.user.is_anonymous():
+    read_to = ReadTo.objects.create(narrative=narrative,
                             user=request.user,
                             date=datetime.now())
 
