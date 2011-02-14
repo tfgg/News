@@ -78,8 +78,13 @@ def narrative(request, id=None, slug=None, show_all=False):
   day_grouped = itertools.groupby(articles, lambda article: article.date.date()) 
   grouped_articles = [(date, list(articles)) for date, articles in day_grouped]
 
-  read_to.date = datetime.now()
-  read_to.save()
+  if read_to is not None:
+    read_to.date = datetime.now()
+    read_to.save()
+  elif not request.is_anonymous():
+    read_to = ReadTo.create(narrative=narrative,
+                            user=request.user,
+                            date=datetime.now())
 
   return render_to_response('narrative.html', {'narrative': narrative,
                                                'grouped_articles': grouped_articles,
