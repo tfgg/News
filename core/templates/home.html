@@ -10,6 +10,10 @@
 {% endblock %}
 
 {% block content %}
+<div class='intro'>
+Want to follow the news at a more leisurely pace without feeling like you're missing anything? <em>FollowTheStory</em> picks out key current narratives in the news and finds articles about them. You can then come back whenever you want to catch up on unread articles as they happened.
+</div>
+
 <ul class='narratives'>
 {% for narrative in narratives %}
 <li class='narrative{% if narrative.new_count %} narrative_new{% endif %}{% if narrative.dormant %} narrative_dormant{% endif %}'>

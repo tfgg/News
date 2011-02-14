@@ -33,6 +33,12 @@
     clear: left;
   }
 
+  .intro {
+    padding:0.2em;
+    margin:0.2em;
+    border:1px solid #CCC;
+  }
+
   ul.narratives {
     list-style:none;
   }
