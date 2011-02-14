@@ -107,25 +107,24 @@ def flush_narrative(request, slug=None):
 def check_narratives(request):
   """
     Find all narratives which are due to be checked, then set their next check time:
-
-    - If there's a new article, check again in 1 hour
-    - If there's no new article, double the gap up to a max of 24 hours  
   """
 
   now = datetime.now()
+  day_ago = now - timedelta(1)
   narratives = Narrative.objects.all()
   for narrative in narratives:
     if narrative.next_check <= now:
-      num_articles1 = Article.objects.filter(narrative=narrative).count()
       for search in narrative.guardiansearch_set.all():
         search.cache = ""
         search.save()
 
       narrative.populate_articles()
-      new_article_count = Article.objects.filter(narrative=narrative).count() - num_articles1
-      
+      new_article_count = Article.objects.filter(narrative=narrative,date__gt=day_ago).count()
+     
+      # No new articles in the last 24 hours, check in 6 hours 
       if new_article_count == 0:
         new_gap = timedelta(0,0,0,0,0,6)
+      # New articles in last 24 hours, check in 1 hour
       else:
         new_gap = timedelta(0,0,0,0,0,1)
       narrative.last_check = now
