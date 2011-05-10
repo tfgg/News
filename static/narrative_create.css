@@ -2,23 +2,11 @@ form.create_narrative {
   width:100%;
 }
 
-#example_articles {
-
+form.create_narrative label {
+  margin-right:0.1em;
 }
 
-#example_articles > .article_url > input {
-  min-width:320px;
-}
-
-#example_articles > .article_url {
-  clear:left;
-  margin-bottom:0.5em;
-  width:100%;
-}
-
-#example_articles > label {
-  display:block;
-  float:left;
-  clear:left;
-  width:200px;
+form.create_narrative input {
+  font-size:1.2em;
+  padding:0.1em;
 }

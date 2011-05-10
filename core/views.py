@@ -6,10 +6,17 @@ import lxml.html
 import itertools
 from datetime import datetime, date, timedelta
 
+from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse,HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from models import Narrative, GuardianSearch, ReadTo, Article
+
+from slugify import smart_slugify
+
+def render_with_context(request, *args, **kwargs):
+  kwargs['context_instance'] = RequestContext(request)
+  return render_to_response(*args, **kwargs)
 
 def home(request):
   narratives = Narrative.objects.all()
@@ -86,12 +93,31 @@ def narrative(request, id=None, slug=None, show_all=False):
                             user=request.user,
                             date=datetime.now())
 
-  return render_to_response('narrative.html', {'narrative': narrative,
+  return render_with_context(request, 'narrative.html', {'narrative': narrative,
                                                'grouped_articles': grouped_articles,
                                                'show_all': show_all,})
 
 def create_narrative(request):
-  return render_to_response('narrative_create.html', {})
+  if 'title' in request.POST:
+    title = request.POST['title']
+
+    narrative = Narrative.objects.create(title=title,
+                                         slug=smart_slugify(title))
+
+    term = title
+    tags = 'tone/news'
+
+    search = GuardianSearch.objects.create(narrative=narrative,
+                                           term=term,
+                                           tags=tags)
+
+    flush_narrative(request, narrative.slug)
+
+    return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': narrative.slug}))
+  else:
+    return render_to_response('narrative_create.html',
+                              {},
+                              context_instance=RequestContext(request))
 
 def flush_narrative(request, slug=None):
   if slug is None:

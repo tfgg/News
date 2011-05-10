@@ -9,6 +9,8 @@ import xml.utils.iso8601 as iso8601
 import operator
 import gu
 import math
+import ner
+import common
 from collections import Counter
 
 remove_chars = [':', '-', ',', '\'', '|', '.', ';', '"', '(', ')', '?', '[', ']', '{', '}']
@@ -105,7 +107,22 @@ def generate_search(story):
 
   searches.append((' '.join([k for k,v in word_score][:2]), ','.join(tag_score[:1][0] + ['tone/news'])))
   
-  return (word_score, searches)
+  return (word_score, tag_score, searches)
+
+def score_tags(tags, article_tags):
+  def inv_or_def(x, d):
+    if x == 0.0:
+      return d
+    else:
+      return 1.0/x
+  tag_score = [(tag, inv_or_def(get_or_zero(tag, tags),1e4)) for tag in article_tags if 'profile/' not in tag]
+  tag_score = sorted(tag_score, key=lambda (t,v): v)
+
+  return tag_score
+
+def get_tags(article):
+  return [tag['id'] for tag in article['tags']]
+   
 
 if len(sys.argv) < 1:
   print "Possible actions: add"
@@ -123,15 +140,71 @@ elif sys.argv[1] == 'analyse':
   for search_term, search_tags in searches:
     print search_term, search_tags
 elif sys.argv[1] == 'today':
-  load_word_corpus()
-  articles = gu.get_today()
+  tags = load_tag_corpus()
+  articles = gu.get_last(int(sys.argv[2]))
 
+  print "Got %d articles" % (len(articles))
+
+  tagged_articles = []
   for article in articles:
-    print article['webTitle']
-    ws, ts, searches = generate_search(article)
+    print "Analysing %s" % (article['webTitle'])
+    ts = set(score_tags(tags, get_tags(article)))
+    ts = set()
+    if 'fields' in article and 'body' in article['fields']:
+      things = ner.process_string(clean(article['fields']['body']))
+      found_entities = [thing for thing in things if thing.entity_type in ['proper_noun', 'initialism', 'acryonym', 'thing']]
 
-    for term, tags in searches:
-      print "  ", term, tags
+      entities = set()
+      for entity in found_entities:
+        if entity.entity_type == 'thing':
+          entities.add(entity.string)
+        elif entity.entity_type == 'proper_noun':
+          if entity.value.lower() not in common.english:
+            entities.add(entity.value)
+        else:
+          entities.add(entity.value)
+
+      #print map(str, found_entities)
+
+      if 'Redistribution' in entities and len(entities) == 1:
+        entities = set()
+      #print entities
+    else:
+      entities = set()
+    
+    if len(entities) != 0 and 'tone/news' in get_tags(article) and ' - video' not in article['webTitle']:
+      tagged_articles.append((ts, entities, article))
+
+  common = {}
+  related = {}
+  for ts1, es1,a1 in tagged_articles:
+    for ts2, es2, a2 in tagged_articles:
+      if a1 is a2:
+        continue
+      
+      overlap_tags = ts1 & ts2
+      overlap_entities = es1 & es2
+
+      for entity in overlap_entities:
+        if entity in related:
+          related[entity].add(a1['id'])
+          related[entity].add(a2['id'])
+        else:
+          related[entity] = set([a1['id'], a2['id']])
+
+      total1 = sum([score for tag, score in ts1]) + sum([0.01 for v in es1])
+      total2 = sum([score for tag, score in ts2]) + sum([0.01 for v in es2])
+      total = total1 + total2
+      overlap_score = (sum([score for tag, score in overlap_tags]) + sum([0.01 for v in overlap_entities])) * 2.0
+      score = overlap_score / total
+
+      if score > 0.15 and a1 is not a2:
+        print "%f | %s | %s | %s" % (score, a1['webTitle'], a2['webTitle'], str(overlap_entities))
+  
+  related_size = [(entity, len(s)) for entity, s in related.items()]
+  print sorted(related_size, key=lambda (x,y): y)
+  print related
+
 elif sys.argv[1] == 'source':
   articles = gu.get_today()
 

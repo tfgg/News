@@ -119,6 +119,23 @@
     font-size:0.8em;
     color:#666;
   }
+
+  .home_button {
+    float:right;
+    padding:0.25em;
+    border:1px solid #CCC;
+    margin:0.1em;
+    font-family:sans-serif;
+  }
+  
+  .flush_button {
+    float:right;
+    padding:0.25em;
+    border:1px solid #CCC;
+    margin:0.1em;
+    font-family:sans-serif;
+  }
+
  
   ul.articles {
     margin-top:1em;

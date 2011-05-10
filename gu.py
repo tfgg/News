@@ -22,13 +22,24 @@ def get_all_pages(url):
 
   return results
 
+def get_last(n):
+  results = []
+
+  page = 1
+  pages = n/50+1
+  while page <= pages:
+    response = get_json("search?order-by=newest&show-tags=all&show-fields=all&format=json&page-size=%d&page=%d" % (50, page))
+    results += response['results']
+    page += 1
+
+  return results[:n]
+
 def get_article(id):
   url = "%s?format=json&show-tags=all&show-fields=all" % id
   return get_json(url)
 
-def get_today():
+def get_today(pages=None):
   today = datetime.now().strftime('%Y-%m-%d')
-  print today
   url = "search?from-date=%s&to-date=%s&order-by=newest&show-tags=all&show-fields=all&format=json" % (today, today)
   return get_all_pages(url)
 

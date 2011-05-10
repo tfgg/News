@@ -57,9 +57,9 @@ def do_search(narrative):
 class Narrative(models.Model):
   title = models.CharField(max_length=200)
   slug = models.SlugField()
-  last_updated = models.DateTimeField()
-  last_check = models.DateTimeField()
-  next_check = models.DateTimeField()
+  last_updated = models.DateTimeField(auto_now_add=True)
+  last_check = models.DateTimeField(auto_now_add=True)
+  next_check = models.DateTimeField(auto_now_add=True)
   subscriptions = models.ManyToManyField(User)
   
   def searches(self):

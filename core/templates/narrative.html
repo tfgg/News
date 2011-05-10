@@ -12,7 +12,10 @@
 {% endblock %}
 
 {% block content %}
-<a href='{% url home %}' style='float:right;'>home</a>
+<a href='{% url home %}' class='home_button'>home</a>
+{% if request.user.is_staff %}
+  <a href='{% url flush_narrative slug=narrative.slug %}' class='flush_button'>flush</a>
+{% endif %}
   <h3>{{ narrative.title }}</h3>
   <small>content from <a href='http://www.guardian.co.uk'>the Guardian</a></small>
   <ul class='searches'>
