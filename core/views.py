@@ -115,9 +115,8 @@ def create_narrative(request):
 
     return HttpResponseRedirect(reverse('narrative_slug', kwargs={'slug': narrative.slug}))
   else:
-    return render_to_response('narrative_create.html',
-                              {},
-                              context_instance=RequestContext(request))
+    return render_with_context(request, 'narrative_create.html',
+                              {},)
 
 def flush_narrative(request, slug=None):
   if slug is None:
