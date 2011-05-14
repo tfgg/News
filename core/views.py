@@ -189,3 +189,6 @@ def set_read_to_narrative(request, slug):
 
   
   return HttpResponse('')
+
+def article_vote(request, slug):
+  pass

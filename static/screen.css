@@ -158,6 +158,43 @@
     background: #111;
   }
 
+
+  li.article .vote_buttons {
+    float:right;
+  }
+
+  li.article .vote_buttons > a {
+    display:block;
+    border:1px solid #666;
+    padding:5px;
+    margin-right:3px;
+    margin-left:3px;
+    margin-bottom:1px;
+    float:right;
+    text-decoration:none;
+    width:10px;
+    height:10px;
+    text-align:center;
+    line-height:10px;
+    cursor:hand;
+  }
+
+  li.upvoted .vote_buttons > a.vote_up {
+    border:1px solid #ccc;
+  }
+
+  li.upvoted .vote_buttons > a.vote_down {
+    border:1px solid rgba(0,0,0,0);
+  }
+  
+  li.downvoted .vote_buttons > a.vote_down {
+    border:1px solid #ccc;
+  }
+
+  li.downvoted .vote_buttons > a.vote_up {
+    border:1px solid rgba(0,0,0,0);
+  }
+
   li.article .date {
     display:block;
     float:left;
