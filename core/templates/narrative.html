@@ -3,22 +3,21 @@
 {% block header %}
 <script>
   function set_read_to(d,article_id) {
-    $.post('{% url narrative_read_to slug=narrative.slug %}', {date: d});
-
     $('.read_to').hide();
     $('#' + article_id).before("<li class='read_to'>you've read to here.</li>");
+    $.post('{% url narrative_read_to slug=narrative.slug %}', {date: d});
   }
 
   function vote_up(ordinal, article_id, narrative_id) {
-    $.post('{% url article_vote slug=narrative.slug %}', {article_id: article_id, up: true});
     $('#' + ordinal).addClass('upvoted');
+    $.post('{% url article_vote slug=narrative.slug %}', {article_id: article_id, up: true});
     return false;
   }
   
   function vote_down(ordinal, article_id, narrative_id) {
-    $.post('{% url article_vote slug=narrative.slug %}', {article_id: article_id, up: false});
     //$('#' + ordinal).hide();
     $('#' + ordinal).addClass('downvoted');
+    $.post('{% url article_vote slug=narrative.slug %}', {article_id: article_id, up: false});
     return false;
   }
 </script>
